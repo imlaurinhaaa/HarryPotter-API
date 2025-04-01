@@ -21,4 +21,39 @@ const getHouse = async (req, res) => {
     }
 };
 
-module.exports = { getAllHouses, getHouse };
+const createHouse = async (req, res) => {
+    try {
+        const { name, founder } = req.body;
+        const newHouse = await houseModel.createHouse(name, founder);
+        res.status(201).json(newHouse);
+    } catch (error) {
+        if (error.code === "23505") { 
+            return res.status(400).json({ message: "Casa já existe." });
+        }
+        res.status(404).json({ message: "Erro ao criar casa." });
+    }
+};
+
+const updateHouse = async (req, res) => {
+    try {
+        const { name, founder } = req.body;
+        const updatedHouse = await houseModel.updateHouse(req.params.id, name, founder);
+        if (!updatedHouse) {
+            return res.status(404).json({ message: "Casa não encontrada." });
+        }
+        res.json(updatedHouse);
+    } catch (error) {
+        res.status(404).json({ message: "Erro ao atualizar casa." });
+    }
+};
+
+const deleteHouse = async (req, res) => {
+    try {
+        const message = await houseModel.deleteHouse(req.params.id);
+        res.json(message);
+    } catch (error) {
+        res.status(404).json({ message: "Erro ao deletar casa." });
+    }
+}
+
+module.exports = { getAllHouses, getHouse, createHouse, updateHouse, deleteHouse };
